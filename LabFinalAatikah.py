@@ -45,38 +45,75 @@ tab1, tab2, tab3 = st.tabs(["📊 Exploratory Data Analysis", "⚙️ Machine Le
 with tab1:
     st.header("Statistical Methods & Visualizations")
     
-    col1, col2 = st.columns(2)
+    st.subheader("Statistical Summary (Mean, Std, Var)")
+    stats_df = pd.DataFrame({
+        'Mean': df.select_dtypes(include=[np.number]).mean(),
+        'Std Dev': df.select_dtypes(include=[np.number]).std(),
+        'Variance': df.select_dtypes(include=[np.number]).var()
+    })
+    st.dataframe(stats_df.round(2).T) # Transposed for a wider, cleaner view
+    
+    st.markdown("---")
+    st.subheader("1. Distribution & Categorical Charts")
+    col1, col2, col3 = st.columns(3)
     with col1:
-        st.subheader("Statistical Summary (Mean, Std, Var)")
-        stats_df = pd.DataFrame({
-            'Mean': df.select_dtypes(include=[np.number]).mean(),
-            'Std Dev': df.select_dtypes(include=[np.number]).std(),
-            'Variance': df.select_dtypes(include=[np.number]).var()
-        })
-        st.dataframe(stats_df.round(2))
-        
-    with col2:
-        st.subheader("Pie Chart: Platform Usage")
-        fig1, ax1 = plt.subplots()
+        st.write("**Pie Chart: Platform Usage**")
+        fig1, ax1 = plt.subplots(figsize=(5,4))
         df['platform_usage'].value_counts().plot.pie(autopct='%1.1f%%', cmap='Pastel1', ax=ax1)
         ax1.set_ylabel('')
         st.pyplot(fig1)
 
-    st.markdown("---")
-    
-    col3, col4 = st.columns(2)
-    with col3:
-        st.subheader("Box Plot: Sleep by Gender")
-        fig2, ax2 = plt.subplots()
-        sns.boxplot(data=df, x='gender', y='sleep_hours', palette='Set2', ax=ax2)
+    with col2:
+        st.write("**Histogram: Sleep Hours Distribution**")
+        fig2, ax2 = plt.subplots(figsize=(5,4))
+        sns.histplot(df['sleep_hours'], bins=15, kde=True, color='skyblue', ax=ax2)
         st.pyplot(fig2)
         
-    with col4:
-        st.subheader("Line Chart: Average Sleep by Age")
-        fig3, ax3 = plt.subplots()
-        age_sleep = df.groupby('age')['sleep_hours'].mean().reset_index()
-        sns.lineplot(data=age_sleep, x='age', y='sleep_hours', marker='o', color='purple', ax=ax3)
+    with col3:
+        st.write("**Count Plot: Depression by Gender**")
+        fig3, ax3 = plt.subplots(figsize=(5,4))
+        sns.countplot(data=df, x='gender', hue='depression_label', palette='Set2', ax=ax3)
         st.pyplot(fig3)
+
+    st.markdown("---")
+    st.subheader("2. Relationship & Trend Charts")
+    col4, col5 = st.columns(2)
+    with col4:
+        st.write("**Scatter Plot: Social Media Hours vs Stress Level**")
+        fig4, ax4 = plt.subplots(figsize=(6,4))
+        # Using a sample of 2000 so the scatter plot isn't too cluttered to read
+        sns.scatterplot(data=df.sample(2000, random_state=42), x='daily_social_media_hours', y='stress_level', alpha=0.5, color='coral', ax=ax4)
+        st.pyplot(fig4)
+        
+    with col5:
+        st.write("**Line Chart: Average Sleep by Age**")
+        fig5, ax5 = plt.subplots(figsize=(6,4))
+        age_sleep = df.groupby('age')['sleep_hours'].mean().reset_index()
+        sns.lineplot(data=age_sleep, x='age', y='sleep_hours', marker='o', color='purple', ax=ax5)
+        st.pyplot(fig5)
+
+    st.markdown("---")
+    st.subheader("3. Statistical Dispersion (Box & Violin Plots)")
+    col6, col7 = st.columns(2)
+    with col6:
+        st.write("**Box Plot: Sleep Hours by Gender**")
+        fig6, ax6 = plt.subplots(figsize=(6,4))
+        sns.boxplot(data=df, x='gender', y='sleep_hours', palette='Set3', ax=ax6)
+        st.pyplot(fig6)
+        
+    with col7:
+        st.write("**Violin Plot: Stress Level by Social Interaction**")
+        fig7, ax7 = plt.subplots(figsize=(6,4))
+        sns.violinplot(data=df, x='social_interaction_level', y='stress_level', palette='magma', ax=ax7)
+        st.pyplot(fig7)
+        
+    st.markdown("---")
+    st.subheader("4. Correlation Analysis")
+    st.write("**Heatmap: Numeric Feature Correlations**")
+    fig8, ax8 = plt.subplots(figsize=(10,6))
+    corr_matrix = df.select_dtypes(include=[np.number]).corr()
+    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5, ax=ax8)
+    st.pyplot(fig8)
 
 # --- TAB 2: MACHINE LEARNING ---
 with tab2:
