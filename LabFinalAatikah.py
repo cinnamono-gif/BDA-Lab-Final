@@ -9,8 +9,7 @@ st.title("Mental Health Dataset Dashboard")
 # Load data
 @st.cache_data
 def load_data():
-    return pd.read_csv(r"C:\Users\hp\Downloads\Mental_Health_Dataset.csv")
-
+    return pd.read_csv("Mental_Health_Dataset.csv")
 df = load_data()
 
 # Show a table of the data on the front end
